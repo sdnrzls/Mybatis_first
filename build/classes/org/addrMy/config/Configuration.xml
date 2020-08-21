@@ -4,7 +4,11 @@ PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
 "http://mybatis.org/dtd/mybatis-3-config.dtd">
 
 <configuration>
-<properties resource="org/addrMy/config/jdbc.properties" /> <!-- -->
+<properties resource="org/addrMy/config/jdbc.properties" /> 
+
+<typeAliases>
+	<typeAlias type="org.addrMy.model.ZipcodeVO" alias="zipvo"/>
+</typeAliases>
 
 <environments default="development">
 <environment id="development">

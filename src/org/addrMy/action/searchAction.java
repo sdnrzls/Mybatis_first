@@ -1,9 +1,10 @@
 package org.addrMy.action;
 
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.HashMap;
 import java.util.List;
 
-import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -12,21 +13,24 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.addrMy.config.MybatisManager;
 import org.addrMy.model.AddressVO;
+import org.addrMy.model.ZipcodeVO;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 
+import com.google.gson.Gson;
+
 /**
- * Servlet implementation class listAction
+ * Servlet implementation class searchAction
  */
-@WebServlet("/address_my/listAction.amy")
-public class listAction extends HttpServlet {
+@WebServlet("/address_my/searchAction.amy")
+public class searchAction extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
     /**
      * @see HttpServlet#HttpServlet()
      */
-    public listAction() {
+    public searchAction() {
         super();
         // TODO Auto-generated constructor stub
     }
@@ -36,17 +40,31 @@ public class listAction extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		request.setCharacterEncoding("utf-8");
-		SqlSessionFactory sqlMapper = MybatisManager.getSqlMapper();
-		SqlSession sqlSession = sqlMapper.openSession(ExecutorType.REUSE);
-		List<AddressVO>arr = sqlSession.selectList("listData");
-		//int count = (Integer)sqlSession.selectOne("countData");
-		int count = (Integer)sqlSession.selectOne("countSearchData");
-
-		request.setAttribute("arr", arr);
-		request.setAttribute("count", count);
+		String field = request.getParameter("field");
+		String word = request.getParameter("word");
 		
-		RequestDispatcher dispatcher = request.getRequestDispatcher("addrList.jsp");
-		dispatcher.forward(request, response);
+		HashMap<String, String>map = new HashMap<>();
+		map.put("field", field);
+		map.put("word", word);
+		
+
+		
+		SqlSessionFactory sqlMapper =  MybatisManager.getSqlMapper();
+		SqlSession sqlSession = sqlMapper.openSession(ExecutorType.REUSE);
+		
+		List<AddressVO>arr = sqlSession.selectList("searchData",map);
+		int  count = sqlSession.selectOne("countSearchData",map);
+		
+		HashMap<String, Object>hm = new HashMap<>();
+		hm.put("arr", arr);
+		hm.put("count", count);
+		
+		//java -> Json (ex. json-simple.jar, gson.jar)
+		Gson gson = new Gson();
+		String obj = gson.toJson(hm);
+		response.setContentType("text/html;charset=utf-8");
+		PrintWriter out = response.getWriter();
+		out.println(obj.toString());
 	}
 
 	/**

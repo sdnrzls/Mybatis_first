@@ -1,9 +1,6 @@
 package org.addrMy.action;
 
 import java.io.IOException;
-import java.util.List;
-
-import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -17,16 +14,16 @@ import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 
 /**
- * Servlet implementation class listAction
+ * Servlet implementation class deleteAction
  */
-@WebServlet("/address_my/listAction.amy")
-public class listAction extends HttpServlet {
+@WebServlet("/address_my/deleteAction.amy")
+public class deleteAction extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
     /**
      * @see HttpServlet#HttpServlet()
      */
-    public listAction() {
+    public deleteAction() {
         super();
         // TODO Auto-generated constructor stub
     }
@@ -35,18 +32,16 @@ public class listAction extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		
 		request.setCharacterEncoding("utf-8");
+		int num = Integer.parseInt(request.getParameter("num"));
+		
 		SqlSessionFactory sqlMapper = MybatisManager.getSqlMapper();
 		SqlSession sqlSession = sqlMapper.openSession(ExecutorType.REUSE);
-		List<AddressVO>arr = sqlSession.selectList("listData");
-		//int count = (Integer)sqlSession.selectOne("countData");
-		int count = (Integer)sqlSession.selectOne("countSearchData");
-
-		request.setAttribute("arr", arr);
-		request.setAttribute("count", count);
 		
-		RequestDispatcher dispatcher = request.getRequestDispatcher("addrList.jsp");
-		dispatcher.forward(request, response);
+		sqlSession.insert("deleteData",num);
+		sqlSession.commit();
+		response.sendRedirect("listAction.amy");
 	}
 
 	/**
